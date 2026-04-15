@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace FilmsApi.Api.Models
 {
     public class Serie : Media
@@ -13,8 +8,13 @@ namespace FilmsApi.Api.Models
         public int? AnneeFin { get; set; }
         public bool EnCours { get; set; }
 
-        public override string GetDescription() =>
-            $"{Titre} ({AnneeDebut}-{AnneeFin}) - {NbSaison} saisons pour un total de {NbEpisode} épisodes ({(EnCours ? "En cours" : "Terminée")})";
+        public override string GetDescription()
+        {
+
+            string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
+
+            return $"{Titre} ({AnneeDebut}-{AnneeFin}) - {NbSaison} saisons pour un total de {NbEpisode} épisodes ({(EnCours ? "En cours" : "Terminée")})" + "\n" + $"{Note} - {genres}" + "\n";
+        }
         public bool EstRecent() => AnneeFin >= DateTime.Now.Year - 3;
 
 

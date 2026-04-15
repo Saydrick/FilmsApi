@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FilmsApi.Api.Models;
 
 namespace FilmsApi.Api.Repositories
@@ -30,5 +26,15 @@ namespace FilmsApi.Api.Repositories
         public void Delete(int id) =>
             _series.RemoveAll(s => s.Id == id);
 
+
+        public IEnumerable<Serie> GetLongSeries(int nbSaison) =>
+            _series
+                .Where(s => s.NbSaison >= nbSaison)
+                .OrderBy(s => s.Titre);
+
+        public IEnumerable<Serie> GetUnfinished() =>
+            _series
+                .Where(s => s.EnCours == true)
+                .OrderBy(s => s.Titre);
     }
 }

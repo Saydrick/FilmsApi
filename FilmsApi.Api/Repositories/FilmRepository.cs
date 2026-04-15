@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FilmsApi.Api.Models;
 
 namespace FilmsApi.Api.Repositories
@@ -29,5 +25,34 @@ namespace FilmsApi.Api.Repositories
 
         public void Delete(int id) =>
             _films.RemoveAll(f => f.Id == id);
+
+
+        public IEnumerable<Film> Search(string terme) =>
+            _films
+                .Where(f => f.Titre.Contains(terme, StringComparison.OrdinalIgnoreCase) || f.Realisateur != null && f.Realisateur.Contains(terme, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Titre);
+
+        public IEnumerable<Film> GetByStatus(string statut) =>
+            _films
+                .Where(f => f.Statut == statut)
+                .OrderBy(f => f.Titre);
+
+        public IEnumerable<Film> GetByGenre(string genre) =>
+            _films
+                .Where(f => f.Genres.Any(g => g.Equals(genre, StringComparison.OrdinalIgnoreCase)))
+                .OrderBy(f => f.Titre);
+
+        public IEnumerable<Film> GetRecents() =>
+            _films
+                .Where(f => f.EstRecent())
+                .OrderByDescending(f => f.Annee)
+                .ThenBy(f => f.Titre);
+
+        public IEnumerable<Film> GetTopNotes(int n) =>
+            _films
+                .Where(f => f.Note != null)
+                .OrderByDescending(f => f.Note)
+                .Take(n);
+
     }
 }
