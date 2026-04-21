@@ -2,9 +2,18 @@ using FilmsApi.Api.Models;
 
 namespace FilmsApi.Api.Repositories
 {
+    /// <summary>
+    /// Repository en mémoire pour les films.
+    /// Remplacé plus tard par EF Core.
+    /// </summary>
     public class FilmRepository : IRepository<Film>
     {
         private readonly List<Film> _films = new();
+        /// <summary>
+        /// Compteur auto-incrémenté pour la génération des identifiants.
+        /// Ne se base pas sur Count pour éviter les collisions après suppression.
+        /// </summary>
+        private int _nextId = 1;
 
         public IEnumerable<Film> GetAll() => _films;
 
@@ -13,7 +22,7 @@ namespace FilmsApi.Api.Repositories
 
         public void Add(Film film)
         {
-            film.Id = _films.Count + 1;
+            film.Id = _nextId++;
             _films.Add(film);
         }
 
@@ -27,6 +36,10 @@ namespace FilmsApi.Api.Repositories
             _films.RemoveAll(f => f.Id == id);
 
 
+        /// <summary>
+        /// Recherche des films par titre ou réalisateur.
+        /// </summary>
+        /// <param name="terme">Terme de recherche (insensible à la casse).</param>
         public IEnumerable<Film> Search(string terme) =>
             _films
                 .Where(f => f.Titre.Contains(terme, StringComparison.OrdinalIgnoreCase) || f.Realisateur != null && f.Realisateur.Contains(terme, StringComparison.OrdinalIgnoreCase))
@@ -42,6 +55,9 @@ namespace FilmsApi.Api.Repositories
                 .Where(f => f.Genres.Any(g => g.Equals(genre, StringComparison.OrdinalIgnoreCase)))
                 .OrderBy(f => f.Titre);
 
+        /// <summary>
+        /// Retourne les films des 3 dernières années, triés du plus récent au plus ancien.
+        /// </summary>
         public IEnumerable<Film> GetRecents() =>
             _films
                 .Where(f => f.EstRecent())

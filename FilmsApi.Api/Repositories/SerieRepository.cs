@@ -2,9 +2,18 @@ using FilmsApi.Api.Models;
 
 namespace FilmsApi.Api.Repositories
 {
+    /// <summary>
+    /// Repository en mémoire pour les séries.
+    /// Remplacé plus tard par EF Core.
+    /// </summary>
     public class SerieRepository : IRepository<Serie>
     {
         private readonly List<Serie> _series = new();
+        /// <summary>
+        /// Compteur auto-incrémenté pour la génération des identifiants.
+        /// Ne se base pas sur Count pour éviter les collisions après suppression.
+        /// </summary>
+        private int _nextId = 1;
 
         public IEnumerable<Serie> GetAll() => _series;
 
@@ -13,7 +22,7 @@ namespace FilmsApi.Api.Repositories
 
         public void Add(Serie serie)
         {
-            serie.Id = _series.Count + 1;
+            serie.Id = _nextId++;
             _series.Add(serie);
         }
 
@@ -34,7 +43,7 @@ namespace FilmsApi.Api.Repositories
 
         public IEnumerable<Serie> GetUnfinished() =>
             _series
-                .Where(s => s.EnCours == true)
+                .Where(s => s.EnCours)
                 .OrderBy(s => s.Titre);
     }
 }

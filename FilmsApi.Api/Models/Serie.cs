@@ -6,6 +6,9 @@ namespace FilmsApi.Api.Models
         public int? NbSaison { get; set; }
         public int? AnneeDebut { get; set; }
         public int? AnneeFin { get; set; }
+        /// <summary>
+        /// Indique si la série est toujours en production.
+        /// </summary>
         public bool EnCours { get; set; }
 
         public override string GetDescription()

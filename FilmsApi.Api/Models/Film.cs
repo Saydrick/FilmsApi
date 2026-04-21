@@ -5,6 +5,9 @@ namespace FilmsApi.Api.Models
         public int? DureeMinute { get; set; }
         public string? Realisateur { get; set; }
         public int Annee { get; set; }
+        /// <summary>
+        /// Identifiant du film dans la base TMDB. Null si le film n'a pas encore été enrichi.
+        /// </summary>
         public int? TmdbId { get; set; }
         public string? AfficheUrl { get; set; }
 

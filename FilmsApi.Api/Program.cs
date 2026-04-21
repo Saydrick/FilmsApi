@@ -1,5 +1,7 @@
+using FilmsApi.Api.Exceptions;
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Repositories;
+using FilmsApi.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,7 @@ app.MapControllers();
 // Test temporaire
 var repoFilm = new FilmRepository();
 var repoSerie = new SerieRepository();
+
 
 repoFilm.Add(new Film
 {
@@ -89,7 +92,7 @@ repoSerie.Add(new Serie
     Genres = { "Crime", "Comédie" },
     Note = 82,
     Statut = "Vu",
-    EnCours = true // Test : à supprimer
+    EnCours = true
 });
 
 repoSerie.Add(new Serie
@@ -127,7 +130,44 @@ repoSerie.Add(new Serie
     Note = 85
 });
 
+var filmService = new FilmService(repoFilm);
+var serieService = new SerieService(repoSerie);
 
+try
+{
+    var film = filmService.GetById(999);
+}
+catch (NotFoundException e)
+{
+    Console.WriteLine($"Erreur : {e.Message}");
+}
+
+try
+{
+    var serie = serieService.GetById(999);
+}
+catch (NotFoundException e)
+{
+    Console.WriteLine($"Erreur : {e.Message}");
+}
+
+Console.WriteLine("----- Films vus -----");
+var filmVus = filmService.GetFiltered(f => f.Statut == "Vu");
+foreach (var film in filmVus)
+{
+    Console.WriteLine(film.GetDescription());
+}
+
+Console.WriteLine("----- Series vus -----");
+var serieVus = serieService.GetFiltered(s => s.Statut == "Vu");
+foreach (var serie in serieVus)
+{
+    Console.WriteLine(serie.GetDescription());
+}
+
+
+
+/*
 Console.WriteLine("----- Search -----");
 foreach (var film in repoFilm.Search("film"))
 {
@@ -169,7 +209,7 @@ foreach (var serie in repoSerie.GetUnfinished())
 {
     Console.WriteLine(serie.GetDescription());
 }
-
+*/
 
 /*
 foreach (var film in repoFilm.GetAll())
