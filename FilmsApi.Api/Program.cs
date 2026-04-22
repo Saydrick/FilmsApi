@@ -1,227 +1,47 @@
-using FilmsApi.Api.Exceptions;
-using FilmsApi.Api.Models;
-using FilmsApi.Api.Repositories;
 using FilmsApi.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+// Configuration TMDB
+var tmdbApiKey = builder.Configuration["Tmdb:ApiKey"];
+// Console.WriteLine($"Clé TMDB : {tmdbApiKey?[..10]}..."); // affiche les 10 premiers caractères
+builder.Services.AddHttpClient<TmdbService>(client =>
+{
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tmdbApiKey);
+});
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.MapControllers();
 
-// Test temporaire
-var repoFilm = new FilmRepository();
-var repoSerie = new SerieRepository();
+// --- Test temporaire --------------------------------------------------------
+var tmdbService = app.Services.GetRequiredService<TmdbService>();
+var repoFilm = new FilmsApi.Api.Repositories.FilmRepository();
+var filmService = new FilmsApi.Api.Services.FilmService(repoFilm);
 
-
-repoFilm.Add(new Film
+repoFilm.Add(new FilmsApi.Api.Models.Film
 {
-    Titre = "La cité de la peur",
-    Annee = 1994,
-    Realisateur = "Alain Berberian",
-    DureeMinute = 93,
-    Genres = { "Comédie" },
-    Note = 75,
-    Statut = "Vu"
+    Titre = "Inception",
+    Annee = 2010,
+    Realisateur = "Christopher Nolan"
 });
 
-repoFilm.Add(new Film
-{
-    Titre = "Avatar 3",
-    Annee = 2025,
-    Realisateur = "James Cameron",
-    DureeMinute = 198,
-    Genres = { "Science-Fiction", "Aventure", "Fatastique" },
-    Note = 74
-});
+var resultats = await tmdbService.SearchFilmsAsync("Inception");
+Console.WriteLine("---- Film -> Inception -------------------------------------");
+foreach (var r in resultats.Take(3))
+    Console.WriteLine($"{r.Titre} ({r.ReleaseDate}) - {r.Id}");
 
-repoFilm.Add(new Film
-{
-    Titre = "Super Mario Bros., le film",
-    Annee = 2023,
-    Realisateur = "Aaron Horvath",
-    DureeMinute = 92,
-    Genres = { "Familial", "Comédie", "Aventure", "Fantastique", "Animation" },
-    Note = 76
-});
-
-repoFilm.Add(new Film
-{
-    Titre = "War Machine",
-    Annee = 2026,
-    Realisateur = "Patrick Hughes",
-    DureeMinute = 110,
-    Genres = { "Action", "Science-Fiction", "Thriller" },
-    Note = 72
-});
-
-repoFilm.Add(new Film
-{
-    Titre = "Demon Slayer : Kimetsu no Yaiba - Le film : La Forteresse infinie",
-    Annee = 2025,
-    Realisateur = "Haruo Sotozaki",
-    DureeMinute = 155,
-    Genres = { "Animation", "Action", "Fantastique" },
-    Note = 77,
-    Statut = "Vu"
-});
-
-
-repoFilm.Add(new Film
-{
-    Titre = "Le Diable s'habille en Prada",
-    Annee = 2006,
-    Realisateur = "David Frankel",
-    DureeMinute = 110,
-    Genres = { "Drame", "Comédie" },
-    Note = 74,
-    Statut = "Vu"
-});
-
-
-repoSerie.Add(new Serie
-{
-    Titre = "Brooklyn 99",
-    AnneeDebut = 2013,
-    AnneeFin = 2021,
-    NbEpisode = 153,
-    NbSaison = 8,
-    Genres = { "Crime", "Comédie" },
-    Note = 82,
-    Statut = "Vu",
-    EnCours = true
-});
-
-repoSerie.Add(new Serie
-{
-    Titre = "The good place",
-    AnneeDebut = 2016,
-    AnneeFin = 2020,
-    NbEpisode = 53,
-    NbSaison = 4,
-    Genres = { "Science-Fiction", "Fantastique", "Comédie" },
-    Note = 80,
-    Statut = "Vu"
-});
-
-repoSerie.Add(new Serie
-{
-    Titre = "Mentalist",
-    AnneeDebut = 2008,
-    AnneeFin = 2014,
-    NbEpisode = 151,
-    NbSaison = 7,
-    Genres = { "Crime", "Drame", "Mystère" },
-    Note = 84,
-    Statut = "Vu"
-});
-
-repoSerie.Add(new Serie
-{
-    Titre = "Peaky Blinders",
-    AnneeDebut = 2013,
-    AnneeFin = 2022,
-    NbEpisode = 36,
-    NbSaison = 6,
-    Genres = { "Crime", "Drame" },
-    Note = 85
-});
-
-var filmService = new FilmService(repoFilm);
-var serieService = new SerieService(repoSerie);
-
-try
-{
-    var film = filmService.GetById(999);
-}
-catch (NotFoundException e)
-{
-    Console.WriteLine($"Erreur : {e.Message}");
-}
-
-try
-{
-    var serie = serieService.GetById(999);
-}
-catch (NotFoundException e)
-{
-    Console.WriteLine($"Erreur : {e.Message}");
-}
-
-Console.WriteLine("----- Films vus -----");
-var filmVus = filmService.GetFiltered(f => f.Statut == "Vu");
-foreach (var film in filmVus)
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- Series vus -----");
-var serieVus = serieService.GetFiltered(s => s.Statut == "Vu");
-foreach (var serie in serieVus)
-{
-    Console.WriteLine(serie.GetDescription());
-}
-
-
-
-/*
-Console.WriteLine("----- Search -----");
-foreach (var film in repoFilm.Search("film"))
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- GetByStatus -----");
-foreach (var film in repoFilm.GetByStatus("Vu"))
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- GetByGenre -----");
-foreach (var film in repoFilm.GetByGenre("Science-fiction"))
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- GetRecent -----");
-foreach (var film in repoFilm.GetRecents())
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- GetTopNotes -----");
-foreach (var film in repoFilm.GetTopNotes(5))
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-Console.WriteLine("----- GetLongSeries -----");
-foreach (var serie in repoSerie.GetLongSeries(4))
-{
-    Console.WriteLine(serie.GetDescription());
-}
-
-Console.WriteLine("----- GetUnfinished -----");
-foreach (var serie in repoSerie.GetUnfinished())
-{
-    Console.WriteLine(serie.GetDescription());
-}
-*/
-
-/*
-foreach (var film in repoFilm.GetAll())
-{
-    Console.WriteLine(film.GetDescription());
-}
-
-foreach (var serie in repoSerie.GetAll())
-{
-    Console.WriteLine(serie.GetDescription());
-}
-*/
+var film = filmService.GetById(1);
+await tmdbService.EnrichirFilmAsync(film, 27205);
+Console.WriteLine("---- Film -> Description -----------------------------------");
+Console.WriteLine(film.GetDescription());
+Console.WriteLine("---- Film -> Affiche ---------------------------------------");
+Console.WriteLine($"Affiche : {film.AfficheUrl}");
+// -----------------------------------------------------------------------------
 
 
 app.Run();

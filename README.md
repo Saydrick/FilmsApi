@@ -15,6 +15,9 @@ Projet d'apprentissage .NET développé en 2 semaines.
 ```bash
 dotnet run --project FilmsApi.Api
 ```
+## Configuration
+
+Copier `appsettings.Example.json` en `appsettings.json` et renseigner la clé API TMDB.
 
 ## Structure
 
