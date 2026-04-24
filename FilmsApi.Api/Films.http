@@ -1,3 +1,146 @@
 @baseUrl = http://localhost:5067
 
+### GET tous les films
 GET {{baseUrl}}/api/films
+
+###
+
+### GET film par id
+GET {{baseUrl}}/api/films/1
+
+###
+
+### POST créer un film
+POST {{baseUrl}}/api/films
+Content-Type: application/json
+
+{
+    "titre": "Inception",
+    "annee": 2010,
+    "realisateur": "Christopher Nolan",
+    "dureeMinute": 148,
+    "genres": ["Action", "Science-Fiction"],
+    "note": 83.7,
+    "statut": "Vu"
+}
+
+###
+
+### PUT modifier un film
+PUT {{baseUrl}}/api/films/1
+Content-Type: application/json
+
+{
+    "id": 1,
+    "titre": "Inception",
+    "annee": 2010,
+    "realisateur": "Christopher Nolan",
+    "dureeMinute": 148,
+    "note": 90.0,
+    "statut": "Vu",
+    "genres": ["Action", "Science-Fiction"]
+}
+
+###
+
+### DELETE supprimer un film
+DELETE {{baseUrl}}/api/films/1
+
+###
+
+
+
+### GET tous les series
+GET {{baseUrl}}/api/series
+
+###
+
+### GET series par id
+GET {{baseUrl}}/api/series/1
+
+###
+
+### POST créer une series
+POST {{baseUrl}}/api/series
+Content-Type: application/json
+
+{
+    "titre": "Mentalist",
+    "anneeDebut": 2008,
+    "anneeFin": 2015,
+    "nbSaison": 7,
+    "nbEpisode": 151,
+    "genres": ["Crime", "Drame", "Mystère"],
+    "note": 84,
+    "statut": "Vu"
+}
+
+###
+
+### PUT modifier une series
+PUT {{baseUrl}}/api/series/1
+Content-Type: application/json
+
+{
+    "id": 1,
+    "titre": "Mentalist",
+    "anneeDebut": 2008,
+    "anneeFin": 2015,
+    "nbSaison": 7,
+    "nbEpisode": 151,
+    "genres": ["Crime", "Drame", "Mystère"],
+    "note": 88,
+    "statut": "Vu"
+}
+
+###
+
+### DELETE supprimer une series
+DELETE {{baseUrl}}/api/series/1
+
+###
+
+
+
+### GET test erreur 404 sur un film
+GET {{baseUrl}}/api/films/999
+
+###
+
+### GET test erreur 404 sur une serie
+GET {{baseUrl}}/api/series/999
+
+###
+
+### POST test erreur 400 sur un film sans titre
+POST {{baseUrl}}/api/films
+Content-Type: application/json
+
+{
+    "titre": "",
+    "annee": 2010,
+    "realisateur": "Christopher Nolan",
+    "dureeMinute": 148,
+    "genres": ["Action", "Science-Fiction"],
+    "note": 83.7,
+    "statut": "Vu"
+}
+
+###
+
+### POST test erreur 400 sur une serie sans titre
+POST {{baseUrl}}/api/series
+Content-Type: application/json
+
+{
+    "titre": "",
+    "anneeDebut": 2008,
+    "anneeFin": 2015,
+    "nbSaison": 7,
+    "nbEpisode": 151,
+    "genres": ["Crime", "Drame", "Mystère"],
+    "note": 84,
+    "statut": "Vu"
+}
+
+###

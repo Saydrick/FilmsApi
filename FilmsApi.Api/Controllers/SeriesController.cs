@@ -7,31 +7,31 @@ namespace FilmsApi.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FilmsController : ControllerBase
+public class SeriesController : ControllerBase
 {
-    private readonly FilmService _filmService;
+    private readonly SerieService _seriesService;
 
-    public FilmsController(FilmService filmService)
+    public SeriesController(SerieService serieService)
     {
-        _filmService = filmService;
+        _seriesService = serieService;
     }
 
-    // GET api/films
+    // GET api/series
     [HttpGet]
     public IActionResult GetAll()
     {
-        var films = _filmService.GetAll();
-        return Ok(films);
+        var series = _seriesService.GetAll();
+        return Ok(series);
     }
 
-    // GET api/films/1
+    // GET api/series/1
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
         try
         {
-            var film = _filmService.GetById(id);
-            return Ok(film);
+            var series = _seriesService.GetById(id);
+            return Ok(series);
         }
         catch (NotFoundException e)
         {
@@ -39,13 +39,13 @@ public class FilmsController : ControllerBase
         }
     }
 
-    // POST api/films
+    // POST api/series
     [HttpPost]
-    public IActionResult Add([FromBody] Film film)
+    public IActionResult Add([FromBody] Serie serie)
     {
         try
         {
-            var created = _filmService.Add(film);
+            var created = _seriesService.Add(serie);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
         catch (ValidationException e)
@@ -54,16 +54,16 @@ public class FilmsController : ControllerBase
         }
     }
 
-    // PUT api/film/1
+    // PUT api/series/1
     [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] Film film)
+    public IActionResult Update(int id, [FromBody] Serie serie)
     {
-        if (id != film.Id)
+        if (id != serie.Id)
             return BadRequest(new { message = "L'id de l'URL ne correspond pas à l'id du body." });
 
         try
         {
-            var updated = _filmService.Update(film);
+            var updated = _seriesService.Update(serie);
             return Ok(updated);
         }
         catch (NotFoundException e)
@@ -76,13 +76,13 @@ public class FilmsController : ControllerBase
         }
     }
 
-    // DELETE api/film/1
+    // DELETE api/series/1
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
         try
         {
-            _filmService.Delete(id);
+            _seriesService.Delete(id);
             return NoContent();
         }
         catch (NotFoundException e)
