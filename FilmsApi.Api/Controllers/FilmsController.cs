@@ -1,3 +1,4 @@
+using FilmsApi.Api.DTOs;
 using FilmsApi.Api.Exceptions;
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Services;
@@ -10,17 +11,20 @@ namespace FilmsApi.Api.Controllers;
 public class FilmsController : ControllerBase
 {
     private readonly FilmService _filmService;
+    private readonly TmdbService _tmdbService;
 
-    public FilmsController(FilmService filmService)
+    public FilmsController(FilmService filmService, TmdbService tmdbService)
     {
         _filmService = filmService;
+        _tmdbService = tmdbService;
     }
 
     // GET api/films
     [HttpGet]
     public IActionResult GetAll()
     {
-        var films = _filmService.GetAll();
+        var films = _filmService.GetAll()
+            .Select(f => _filmService.ToDto(f));
         return Ok(films);
     }
 
@@ -31,7 +35,7 @@ public class FilmsController : ControllerBase
         try
         {
             var film = _filmService.GetById(id);
-            return Ok(film);
+            return Ok(_filmService.ToDto(film));
         }
         catch (NotFoundException e)
         {
@@ -41,10 +45,11 @@ public class FilmsController : ControllerBase
 
     // POST api/films
     [HttpPost]
-    public IActionResult Add([FromBody] Film film)
+    public IActionResult Add([FromBody] CreateFilmDto dto)
     {
         try
         {
+            var film = _filmService.FromDto(dto);
             var created = _filmService.Add(film);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
@@ -84,6 +89,25 @@ public class FilmsController : ControllerBase
         {
             _filmService.Delete(id);
             return NoContent();
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(new { message = e.Message });
+        }
+    }
+
+    /// <summary>
+    /// Enrichit un film avec les données TMDB.
+    /// </summary>
+    [HttpPost("{id}/enrich")]
+    public async Task<IActionResult> Enrich(int id, [FromBody] EnrichFilmDto dto)
+    {
+        try
+        {
+            var film = _filmService.GetById(id);
+            await _tmdbService.EnrichirFilmAsync(film, dto.TmdbId);
+            _filmService.Update(film);
+            return Ok(_filmService.ToDto(film));
         }
         catch (NotFoundException e)
         {

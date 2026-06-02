@@ -11,11 +11,13 @@ namespace FilmsApi.Api.Models
         public int? TmdbId { get; set; }
         public string? AfficheUrl { get; set; }
 
+        public string? FormatDuree() =>
+            DureeMinute.HasValue
+                ? $"{TimeSpan.FromMinutes(DureeMinute.Value).Hours}h{TimeSpan.FromMinutes(DureeMinute.Value).Minutes:D2}"
+                : null;
         public override string GetDescription()
         {
-            string duree = DureeMinute.HasValue
-            ? $"{TimeSpan.FromMinutes(DureeMinute.Value).Hours}h{TimeSpan.FromMinutes(DureeMinute.Value).Minutes:D2}"
-            : "durée inconnue";
+            string duree = FormatDuree() ?? "durée inconnue";
 
             string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
 

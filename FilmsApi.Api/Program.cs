@@ -1,6 +1,7 @@
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Repositories;
 using FilmsApi.Api.Services;
+using FilmsApi.Api.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,15 @@ builder.Services.AddScoped<FilmService>();
 builder.Services.AddScoped<SerieService>();
 
 // Configuration TMDB
-var tmdbApiKey = builder.Configuration["Tmdb:ApiKey"];
+builder.Services.Configure<TmdbOptions>(
+    builder.Configuration.GetSection("Tmdb")
+);
+
 builder.Services.AddHttpClient<TmdbService>(client =>
 {
+    var apiKey = builder.Configuration["Tmdb:ApiKey"];
     client.DefaultRequestHeaders.Authorization =
-        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tmdbApiKey);
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 });
 
 var app = builder.Build();

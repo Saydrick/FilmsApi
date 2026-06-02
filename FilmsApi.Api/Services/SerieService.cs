@@ -1,3 +1,4 @@
+using FilmsApi.Api.DTOs;
 using FilmsApi.Api.Exceptions;
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Repositories;
@@ -51,6 +52,42 @@ namespace FilmsApi.Api.Services
 
             if (errors.Any())
                 throw new ValidationException(errors);
+        }
+
+        public Serie FromDto(CreateSerieDto dto)
+        {
+            return new Serie
+            {
+                Titre = dto.Titre,
+                Synopsis = dto.Synopsis,
+                AnneeDebut = dto.AnneeDebut,
+                AnneeFin = dto.AnneeFin,
+                NbEpisode = dto.NbEpisode,
+                NbSaison = dto.NbSaison,
+                Genres = dto.Genres,
+                Note = dto.Note,
+                EnCours = dto.EnCours,
+                Statut = dto.Statut
+            };
+        }
+
+        public SerieResponseDto ToDto(Serie serie)
+        {
+            return new SerieResponseDto
+            {
+                Id = serie.Id,
+                Titre = serie.Titre,
+                Synopsis = serie.Synopsis,
+                AnneeDebut = serie.AnneeDebut,
+                AnneeFin = serie.AnneeFin,
+                NbEpisode = serie.NbEpisode,
+                NbSaison = serie.NbSaison,
+                Genres = serie.Genres,
+                Note = serie.Note,
+                EnCours = serie.EnCours,
+                Statut = serie.Statut,
+                EstRecent = serie.EstRecent()
+            };
         }
     }
 }

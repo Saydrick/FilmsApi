@@ -144,3 +144,21 @@ Content-Type: application/json
 }
 
 ###
+
+### POST enrichir un film avec TMDB
+POST {{baseUrl}}/api/films/1/enrich
+Content-Type: application/json
+
+{
+    "tmdbId": 27205
+}
+
+###
+
+### POST enrichir une série avec TMDB
+POST {{baseUrl}}/api/series/1/enrich
+Content-Type: application/json
+
+{
+    "tmdbId": 1418
+}

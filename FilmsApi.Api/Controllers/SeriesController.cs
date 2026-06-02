@@ -1,3 +1,4 @@
+using FilmsApi.Api.DTOs;
 using FilmsApi.Api.Exceptions;
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Services;
@@ -9,18 +10,21 @@ namespace FilmsApi.Api.Controllers;
 [Route("api/[controller]")]
 public class SeriesController : ControllerBase
 {
-    private readonly SerieService _seriesService;
+    private readonly SerieService _serieService;
+    private readonly TmdbService _tmdbService;
 
-    public SeriesController(SerieService serieService)
+    public SeriesController(SerieService serieService, TmdbService tmdbService)
     {
-        _seriesService = serieService;
+        _serieService = serieService;
+        _tmdbService = tmdbService;
     }
 
     // GET api/series
     [HttpGet]
     public IActionResult GetAll()
     {
-        var series = _seriesService.GetAll();
+        var series = _serieService.GetAll()
+            .Select(s => _serieService.ToDto(s));
         return Ok(series);
     }
 
@@ -30,8 +34,8 @@ public class SeriesController : ControllerBase
     {
         try
         {
-            var series = _seriesService.GetById(id);
-            return Ok(series);
+            var series = _serieService.GetById(id);
+            return Ok(_serieService.ToDto(series));
         }
         catch (NotFoundException e)
         {
@@ -41,11 +45,12 @@ public class SeriesController : ControllerBase
 
     // POST api/series
     [HttpPost]
-    public IActionResult Add([FromBody] Serie serie)
+    public IActionResult Add([FromBody] CreateSerieDto dto)
     {
         try
         {
-            var created = _seriesService.Add(serie);
+            var serie = _serieService.FromDto(dto);
+            var created = _serieService.Add(serie);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
         catch (ValidationException e)
@@ -63,7 +68,7 @@ public class SeriesController : ControllerBase
 
         try
         {
-            var updated = _seriesService.Update(serie);
+            var updated = _serieService.Update(serie);
             return Ok(updated);
         }
         catch (NotFoundException e)
@@ -82,8 +87,27 @@ public class SeriesController : ControllerBase
     {
         try
         {
-            _seriesService.Delete(id);
+            _serieService.Delete(id);
             return NoContent();
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(new { message = e.Message });
+        }
+    }
+
+    /// <summary>
+    /// Enrichit une serie avec les données TMDB.
+    /// </summary>
+    [HttpPost("{id}/enrich")]
+    public async Task<IActionResult> Enrich(int id, [FromBody] EnrichSerieDto dto)
+    {
+        try
+        {
+            var serie = _serieService.GetById(id);
+            await _tmdbService.EnrichirSerieAsync(serie, dto.TmdbId);
+            _serieService.Update(serie);
+            return Ok(_serieService.ToDto(serie));
         }
         catch (NotFoundException e)
         {

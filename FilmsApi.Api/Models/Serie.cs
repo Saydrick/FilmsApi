@@ -10,6 +10,8 @@ namespace FilmsApi.Api.Models
         /// Indique si la série est toujours en production.
         /// </summary>
         public bool EnCours { get; set; }
+        public int? TmdbId { get; set; }
+        public string? AfficheUrl { get; set; }
 
         public override string GetDescription()
         {
