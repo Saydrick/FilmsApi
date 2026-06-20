@@ -1,7 +1,6 @@
-namespace FilmsApi.Api.DTOs
+namespace FilmsApi.Api.DTOs;
+
+public class EnrichSerieDto
 {
-    public class EnrichSerieDto
-    {
-        public int TmdbId { get; set; }
-    }
+    public int TmdbId { get; set; }
 }

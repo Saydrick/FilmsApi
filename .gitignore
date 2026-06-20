@@ -10,6 +10,9 @@
 *.userosscache
 *.sln.docstates
 *.env
+*.db
+*.db-shm
+*.db-wal
 appsettings.Development.json
 appsettings.json
 

@@ -2,14 +2,21 @@ using FilmsApi.Api.Models;
 using FilmsApi.Api.Repositories;
 using FilmsApi.Api.Services;
 using FilmsApi.Api.Options;
+using FilmsApi.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+// Base de données EF Core
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
 // Enregistrement des repositories
-builder.Services.AddSingleton<IRepository<Film>, FilmRepository>();
-builder.Services.AddSingleton<IRepository<Serie>, SerieRepository>();
+builder.Services.AddScoped<IRepository<Film>, FilmEfRepository>();
+builder.Services.AddScoped<IRepository<Serie>, SerieEfRepository>();
 
 // Enregistrement des services
 builder.Services.AddScoped<FilmService>();

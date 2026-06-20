@@ -3,91 +3,90 @@ using FilmsApi.Api.Exceptions;
 using FilmsApi.Api.Models;
 using FilmsApi.Api.Repositories;
 
-namespace FilmsApi.Api.Services
+namespace FilmsApi.Api.Services;
+
+/// <summary>
+/// Service gérant la logique métier spécifique aux série.
+/// Hérite de MediaService pour les opérations communes (GetAll, GetById, Delete).
+/// </summary>
+public class SerieService : MediaService<Serie>
 {
-    /// <summary>
-    /// Service gérant la logique métier spécifique aux série.
-    /// Hérite de MediaService pour les opérations communes (GetAll, GetById, Delete).
-    /// </summary>
-    public class SerieService : MediaService<Serie>
+    public SerieService(IRepository<Serie> repository) : base(repository) { }
+
+    public Serie Add(Serie serie)
     {
-        public SerieService(IRepository<Serie> repository) : base(repository) { }
+        Validate(serie);
+        _repository.Add(serie);
+        return serie;
+    }
 
-        public Serie Add(Serie serie)
+    public Serie Update(Serie serie)
+    {
+        GetById(serie.Id);
+        Validate(serie);
+        _repository.Update(serie);
+        return serie;
+    }
+
+    /// <summary>
+    /// Valide les données d'une série avant ajout ou mise à jour.
+    /// </summary>
+    /// <param name="serie">La série à valider.</param>
+    /// <exception cref="ValidationException">Lancée si une ou plusieurs règles ne sont pas respectées.</exception>
+    private void Validate(Serie serie)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(serie.Titre))
+            errors.Add("Le titre est obligatoire.");
+
+        if (serie.AnneeDebut.HasValue && serie.AnneeDebut < 1900)
+            errors.Add("L'année de début doit être supérieure à 1900.");
+
+        if (serie.AnneeFin.HasValue && serie.AnneeDebut.HasValue
+            && serie.AnneeFin < serie.AnneeDebut)
+            errors.Add("L'année de fin ne peut pas être antérieure à l'année de début.");
+
+        if (serie.Note.HasValue && (serie.Note < 0 || serie.Note > 100))
+            errors.Add("La note doit être comprise entre 0 et 100.");
+
+        if (errors.Any())
+            throw new ValidationException(errors);
+    }
+
+    public Serie FromDto(CreateSerieDto dto)
+    {
+        return new Serie
         {
-            Validate(serie);
-            _repository.Add(serie);
-            return serie;
-        }
+            Titre = dto.Titre,
+            Synopsis = dto.Synopsis,
+            AnneeDebut = dto.AnneeDebut,
+            AnneeFin = dto.AnneeFin,
+            NbEpisode = dto.NbEpisode,
+            NbSaison = dto.NbSaison,
+            Genres = dto.Genres,
+            Note = dto.Note,
+            EnCours = dto.EnCours,
+            Statut = dto.Statut
+        };
+    }
 
-        public Serie Update(Serie serie)
+    public SerieResponseDto ToDto(Serie serie)
+    {
+        return new SerieResponseDto
         {
-            GetById(serie.Id);
-            Validate(serie);
-            _repository.Update(serie);
-            return serie;
-        }
-
-        /// <summary>
-        /// Valide les données d'une série avant ajout ou mise à jour.
-        /// </summary>
-        /// <param name="serie">La série à valider.</param>
-        /// <exception cref="ValidationException">Lancée si une ou plusieurs règles ne sont pas respectées.</exception>
-        private void Validate(Serie serie)
-        {
-            var errors = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(serie.Titre))
-                errors.Add("Le titre est obligatoire.");
-
-            if (serie.AnneeDebut.HasValue && serie.AnneeDebut < 1900)
-                errors.Add("L'année de début doit être supérieure à 1900.");
-
-            if (serie.AnneeFin.HasValue && serie.AnneeDebut.HasValue
-                && serie.AnneeFin < serie.AnneeDebut)
-                errors.Add("L'année de fin ne peut pas être antérieure à l'année de début.");
-
-            if (serie.Note.HasValue && (serie.Note < 0 || serie.Note > 100))
-                errors.Add("La note doit être comprise entre 0 et 100.");
-
-            if (errors.Any())
-                throw new ValidationException(errors);
-        }
-
-        public Serie FromDto(CreateSerieDto dto)
-        {
-            return new Serie
-            {
-                Titre = dto.Titre,
-                Synopsis = dto.Synopsis,
-                AnneeDebut = dto.AnneeDebut,
-                AnneeFin = dto.AnneeFin,
-                NbEpisode = dto.NbEpisode,
-                NbSaison = dto.NbSaison,
-                Genres = dto.Genres,
-                Note = dto.Note,
-                EnCours = dto.EnCours,
-                Statut = dto.Statut
-            };
-        }
-
-        public SerieResponseDto ToDto(Serie serie)
-        {
-            return new SerieResponseDto
-            {
-                Id = serie.Id,
-                Titre = serie.Titre,
-                Synopsis = serie.Synopsis,
-                AnneeDebut = serie.AnneeDebut,
-                AnneeFin = serie.AnneeFin,
-                NbEpisode = serie.NbEpisode,
-                NbSaison = serie.NbSaison,
-                Genres = serie.Genres,
-                Note = serie.Note,
-                EnCours = serie.EnCours,
-                Statut = serie.Statut,
-                EstRecent = serie.EstRecent()
-            };
-        }
+            Id = serie.Id,
+            Titre = serie.Titre,
+            Synopsis = serie.Synopsis,
+            AnneeDebut = serie.AnneeDebut,
+            AnneeFin = serie.AnneeFin,
+            NbEpisode = serie.NbEpisode,
+            NbSaison = serie.NbSaison,
+            Genres = serie.Genres,
+            Note = serie.Note,
+            EnCours = serie.EnCours,
+            Statut = serie.Statut,
+            EstRecent = serie.EstRecent()
+        };
     }
 }

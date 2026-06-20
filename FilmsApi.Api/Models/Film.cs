@@ -1,28 +1,27 @@
-namespace FilmsApi.Api.Models
+namespace FilmsApi.Api.Models;
+
+public class Film : Media
 {
-    public class Film : Media
+    public int? DureeMinute { get; set; }
+    public string? Realisateur { get; set; }
+    public int Annee { get; set; }
+    /// <summary>
+    /// Identifiant du film dans la base TMDB. Null si le film n'a pas encore été enrichi.
+    /// </summary>
+    public int? TmdbId { get; set; }
+    public string? AfficheUrl { get; set; }
+
+    public string? FormatDuree() =>
+        DureeMinute.HasValue
+            ? $"{TimeSpan.FromMinutes(DureeMinute.Value).Hours}h{TimeSpan.FromMinutes(DureeMinute.Value).Minutes:D2}"
+            : null;
+    public override string GetDescription()
     {
-        public int? DureeMinute { get; set; }
-        public string? Realisateur { get; set; }
-        public int Annee { get; set; }
-        /// <summary>
-        /// Identifiant du film dans la base TMDB. Null si le film n'a pas encore été enrichi.
-        /// </summary>
-        public int? TmdbId { get; set; }
-        public string? AfficheUrl { get; set; }
+        string duree = FormatDuree() ?? "durée inconnue";
 
-        public string? FormatDuree() =>
-            DureeMinute.HasValue
-                ? $"{TimeSpan.FromMinutes(DureeMinute.Value).Hours}h{TimeSpan.FromMinutes(DureeMinute.Value).Minutes:D2}"
-                : null;
-        public override string GetDescription()
-        {
-            string duree = FormatDuree() ?? "durée inconnue";
+        string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
 
-            string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
-
-            return $"{Titre} ({Annee}) - Film réalisé par {Realisateur}, {duree}" + "\n" + $"{Note} - {genres}" + "\n";
-        }
-        public bool EstRecent() => Annee >= DateTime.Now.Year - 3;
+        return $"{Titre} ({Annee}) - Film réalisé par {Realisateur}, {duree}" + "\n" + $"{Note} - {genres}" + "\n";
     }
+    public bool EstRecent() => Annee >= DateTime.Now.Year - 3;
 }

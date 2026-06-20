@@ -1,27 +1,26 @@
-namespace FilmsApi.Api.Models
+namespace FilmsApi.Api.Models;
+
+public class Serie : Media
 {
-    public class Serie : Media
+    public int? NbEpisode { get; set; }
+    public int? NbSaison { get; set; }
+    public int? AnneeDebut { get; set; }
+    public int? AnneeFin { get; set; }
+    /// <summary>
+    /// Indique si la série est toujours en production.
+    /// </summary>
+    public bool EnCours { get; set; }
+    public int? TmdbId { get; set; }
+    public string? AfficheUrl { get; set; }
+
+    public override string GetDescription()
     {
-        public int? NbEpisode { get; set; }
-        public int? NbSaison { get; set; }
-        public int? AnneeDebut { get; set; }
-        public int? AnneeFin { get; set; }
-        /// <summary>
-        /// Indique si la série est toujours en production.
-        /// </summary>
-        public bool EnCours { get; set; }
-        public int? TmdbId { get; set; }
-        public string? AfficheUrl { get; set; }
 
-        public override string GetDescription()
-        {
+        string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
 
-            string genres = Genres.Any() ? string.Join(", ", Genres) : "Aucun genre";
-
-            return $"{Titre} ({AnneeDebut}-{AnneeFin}) - {NbSaison} saisons pour un total de {NbEpisode} épisodes ({(EnCours ? "En cours" : "Terminée")})" + "\n" + $"{Note} - {genres}" + "\n";
-        }
-        public bool EstRecent() => AnneeFin >= DateTime.Now.Year - 3;
-
-
+        return $"{Titre} ({AnneeDebut}-{AnneeFin}) - {NbSaison} saisons pour un total de {NbEpisode} épisodes ({(EnCours ? "En cours" : "Terminée")})" + "\n" + $"{Note} - {genres}" + "\n";
     }
+    public bool EstRecent() => AnneeFin >= DateTime.Now.Year - 3;
+
+
 }
